@@ -1,3 +1,6 @@
+// Author: K
+
+
 const Sequelize = require('sequelize')
 const config = require('../config.js')
 
@@ -13,7 +16,7 @@ var sequelize = new Sequelize(config.database, config.username, config.password,
     timezone: config.timezone
 });
 
-var User = sequelize.define('up_stream_user', {
+var User = sequelize.define('middle_stream_user', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -24,6 +27,7 @@ var User = sequelize.define('up_stream_user', {
         unique: true,
         allowNull: true
     },
+
     chip1Num: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -39,33 +43,19 @@ var User = sequelize.define('up_stream_user', {
         allowNull: false,
         defaultValue: 0
     },
-    currency: {
+    phoneNum: {
+        type: Sequelize.JSON,
+        allowNull: true
+    },
+
+    totalStroageCost: {
         type: Sequelize.FLOAT,
         allowNull: false,
         defaultValue: 0
     },
-    debt: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-        defaultValue: 0
-    },
-    totalStorageCost: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-        defaultValue: 0
-    },
-    T: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-        defaultValue: 0
-    },
-    TCost: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-        defaultValue: 0
-    },
+
     M: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.FLOAT, //美观度投入系数
         allowNull: false,
         defaultValue: 0
     },
@@ -73,7 +63,31 @@ var User = sequelize.define('up_stream_user', {
         type: Sequelize.FLOAT,
         allowNull: false,
         defaultValue: 0
-    }
+    },
+    K: {
+        type: Sequelize.FLOAT, //功能性度投入系数
+        allowNull: false,
+        defaultValue: 0
+    },
+    KCost: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
+        defaultValue: 0
+    },
+
+
+    currency: {
+        type:Sequelize.FLOAT,
+        allowNull: false,
+        defaultValue: 0
+    },
+    debt: {
+        type:Sequelize.FLOAT,
+        allowNull: false,
+        defaultValue: 0
+    },
+
+
 }, {
     freezeTableName: true, // use singular table name
     timestamps: true
@@ -91,39 +105,33 @@ function sync() {
  */
 function addUser(userId) {
     return User.create({
-        userId: userId
+            userId: userId
         })
 };
 
-
-async function invest(userId, data) {
-    const result = await findUserByUserId(userId)
-    const prev = result.dataValues
-    
-    var tmpTCost    = Number(prev.TCost) + Number(data.TInvest);
-    var tmpMCost    = Number(prev.MCost) + Number(data.MInvest);
-    return User.update({
-        TCost:tmpTCost,
-        MCost:tmpMCost,
-    }, {
-        where: {userId: userId}
-    })
-};
-
-async function produce(userId, data) {
+async function invest(userId, inputData) {
     const result = await findUserByUserId(userId);
     const prev = result.dataValues;
-    var tmpChip1Num = Number(prev.chip1Num) + Number(data.chip1Num);
-    var tmpChip2Num = Number(prev.chip2Num) + Number(data.chip2Num);
-    var tmpChip3Num = Number(prev.chip3Num) + Number(data.chip3Num);
+
+    var xxxCost = Number(prev.xxxCost) + Number(inputData.xxxCost);
     return User.update({
-        chip1Num:tmpChip1Num,
-        chip2Num:tmpChip2Num,
-        chip3Num:tmpChip3Num,
-    }, {
+    //    xxxCost
+    },{
         where: {userId: userId}
     })
 };
+
+async function produce(userId, inputData) {
+    const result = await findUserByUserId(userId);
+    const prev = result.dataValues;
+
+    return User.update({
+    //    xxxCost
+    },{
+        where: {userId: userId}
+    })
+};
+
 
 async function debt(userId, data) {
     const result = await findUserByUserId(userId);
@@ -137,26 +145,23 @@ async function debt(userId, data) {
 };
 
 /**
- * 根据name查找用户
+ * 根据id查找用户
  */
 function findUserByUserId(userId) {
     return User.findOne({
         where:{
-            userId: userId
+            userId:userId
         }
     })
 };
 
+
 function clear(userId) {
     return User.update({
-        chip1Num:0,
-        chip2Num:0,
-        chip3Num:0,
-        TCost:0,
-        MCost:0,
+        phoneNum:null,
     }, {
         where: {userId: userId}
     })
 };
 
-module.exports = {sync, addUser, invest, produce, findUserByUserId, clear, debt}
+module.exports = {sync, addUser, findUserByUserId, produce, invest, debt, clear};

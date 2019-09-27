@@ -1,4 +1,4 @@
-var User = require('../models/UpStreamUser')
+var User = require('../models/MiddleStreamUser')
 
 class UserController {
 
@@ -41,7 +41,6 @@ class UserController {
       infoText: 'Finished debt!',
     };
   };
-
 }
 
 module.exports = new UserController();

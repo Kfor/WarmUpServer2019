@@ -2,76 +2,55 @@
 
 var User = require('../models/DownStreamUser')
 
-class DownStreamUserController {
-  async login(ctx) {
-    const data = ctx.request.body;
-    const result = await DownStreamUser.findUserById(data.id);
-    if (result == null) {
-      console.log(`[INFO]: ${data.id}用户不存在`)
+class UserController {
+  
+  async advertise(ctx) {
+      const data = ctx.request.query;
+      User.advertise(data.userId, data);
       ctx.body = {
         status: 200,
-        statusText: 'err',
-        infoText: '该用户不存在'
+        infoText: 'Finished Advertise!'
       };
-    }
-    else {
-      if (data.password == result.dataValues.password){
-        console.log(`[INFO]: ${data.id}用户登录`)
-        ctx.body = {
-          status: 200,
-          statusText: 'ok',
-          infoText: '登录成功'
-        }
-      }
-      else {
-        console.log(`[INFO]: ${data.id}用户登录失败, 密码错误`)
-        ctx.body = {
-          status: 200,
-          statusText: 'err',
-          infoText: '密码错误'
-        }
-      }
-    }
   }
 
-  async register(ctx) {
-    const data = ctx.request.body;
-    const result = await DownStreamUser.findUserById(data.id);
-    if (result == null) {
-      console.log(`[INFO]: ${data.id} 用户不存在, 进行创建`);
-      DownStreamUser.addUser(data.id, data.password);
-      ctx.body = {
-        status: 200,
-        statusText: 'ok',
-        infoText: '注册成功'
-      };
-    }
-    else{
-      console.log(`[INFO]: ${data.id} 用户已存在, 返回错误消息`);
-      ctx.body = {
-        status: 200,
-        statusText: 'err',
-        infoText: '此邮箱已注册'
-      };
-    }
-  }
-  
-  async logout(ctx) {
+  async sell(ctx) {
+    const data = ctx.request.query;
+    User.sell(data.userId, data);
     ctx.body = {
       status: 200,
-      statusText: 'ok',
-      currentAuthority: 'guest',
+      infoText: 'Finished Sell!'
     };
-  }
+  } 
 
+  async clear(ctx) {
+    const data = ctx.request.query;
+    User.clear(data.userId);
 
+    ctx.body = {
+      status: 200,
+      infoText: 'Finished Clear!',
+    };
+  };
 
+  async init(ctx) {
+    const data = ctx.request.query;
+    User.init(data.userId);
 
-  async produce(ctx) {
-      const data = ctx.request.body;
-      // const result = await 
-      // TODO : 这里似乎需要重新建表？因为要把一轮输入完毕后，每个玩家的输入都汇总到一个json中
-  }
+    ctx.body = {
+      status: 200,
+      infoText: 'Finished Init!',
+    };
+  };
+  
+  async debt(ctx) {
+    const data = ctx.request.query;
+    User.debt(data.userId, data);
+
+    ctx.body = {
+      status: 200,
+      infoText: 'Finished debt!',
+    };
+  };
 }
 
-module.exports = new DownStreamUserController();
+module.exports = new UserController();
